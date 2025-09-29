@@ -1,4 +1,4 @@
-using Ambev.DeveloperEvaluation.Application;
+﻿using Ambev.DeveloperEvaluation.Application;
 using Ambev.DeveloperEvaluation.Common.HealthChecks;
 using Ambev.DeveloperEvaluation.Common.Logging;
 using Ambev.DeveloperEvaluation.Common.Security;
@@ -8,7 +8,9 @@ using Ambev.DeveloperEvaluation.ORM;
 using Ambev.DeveloperEvaluation.WebApi.Middleware;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Serilog;
+using System;
 
 namespace Ambev.DeveloperEvaluation.WebApi;
 
@@ -33,14 +35,17 @@ public class Program
                 options.UseNpgsql(
                     builder.Configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
-                )
-            );
+                ));
+
 
             builder.Services.AddJwtAuthentication(builder.Configuration);
 
             builder.RegisterDependencies();
 
-            builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(ApplicationLayer).Assembly);
+            builder.Services.AddAutoMapper(
+                typeof(Program).Assembly, 
+                typeof(ApplicationLayer).Assembly
+            );
 
             builder.Services.AddMediatR(cfg =>
             {

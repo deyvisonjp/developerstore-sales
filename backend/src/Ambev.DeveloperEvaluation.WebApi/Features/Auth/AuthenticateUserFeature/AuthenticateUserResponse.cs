@@ -26,4 +26,9 @@ public sealed class AuthenticateUserResponse
     /// Gets or sets the user's role in the system
     /// </summary>
     public string Role { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the user's role in the system
+    /// </summary>
+    public string Phone { get; set; } = string.Empty;
 }
