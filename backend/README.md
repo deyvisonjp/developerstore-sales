@@ -52,5 +52,9 @@ Para possibilitar o início do desenvolvimento, foram realizados ajustes na conf
 
 ## Como rodar o projeto localmente
 1. Clonar o repositório
-```bash
-git clone <link-do-repositorio>
+`git clone <link-do-repositorio>`
+
+2. Configurar connection string para PostgreSQL (local ou Neon)
+
+3. Executar migrations
+`dotnet ef database update`
