@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.UpdateSale
 {
-    internal class UpdateSaleCommand
+    public class UpdateSaleCommand
     {
     }
 }

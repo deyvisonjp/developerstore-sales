@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ambev.DeveloperEvaluation.Application.Sales
+﻿namespace Ambev.DeveloperEvaluation.Application.Sales
 {
-    internal class CreateSale
+    /// <summary>
+    /// Represents the response returned after successfully creating a new sale.
+    /// </summary>
+    public class CreateSaleResult
     {
+        public Guid Id { get; set; }
     }
 }

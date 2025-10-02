@@ -1,3 +1,4 @@
+using Ambev.DeveloperEvaluation.Domain.Services;
 using System;
 
 namespace Ambev.DeveloperEvaluation.Domain.Entities
@@ -5,7 +6,6 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
     public class SaleItem
     {
         public Guid Id { get; set; }
-
         public Guid SaleId { get; set; }
         public string ProductId { get; set; } = string.Empty;
 
@@ -21,15 +21,12 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
             ProductId = productId;
             Quantity = quantity;
             UnitPrice = unitPrice;
-
-            Ambev.DeveloperEvaluation.Domain.Services.DiscountService.ValidateQuantity(quantity);
-
-            Discount = Ambev.DeveloperEvaluation.Domain.Services.DiscountService.GetDiscountForQuantity(quantity);
-            TotalItem = quantity * unitPrice * (1 - Discount);
+            Recalculate();
         }
 
         public void Recalculate()
         {
+            Discount = DiscountService.GetDiscountForQuantity(Quantity);
             TotalItem = Quantity * UnitPrice * (1 - Discount);
         }
     }

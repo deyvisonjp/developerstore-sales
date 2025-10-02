@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.DeleteSale
 {
-    internal class DeleteSaleCommand
+    public class DeleteSaleCommand
     {
     }
 }

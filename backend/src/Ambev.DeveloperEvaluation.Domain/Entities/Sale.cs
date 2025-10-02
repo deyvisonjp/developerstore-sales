@@ -13,15 +13,11 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         public DateTime Date { get; set; }
         public string Customer { get; set; } = string.Empty;
         public string Branch { get; set; } = string.Empty;
-
         public decimal TotalAmount { get; set; }
-
         public SaleStatus Status { get; set; } = SaleStatus.Active;
-
         public List<SaleItem> Items { get; set; } = new();
-
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
         /// <summary>
         /// Adiciona um item à venda com validações básicas de domínio.
