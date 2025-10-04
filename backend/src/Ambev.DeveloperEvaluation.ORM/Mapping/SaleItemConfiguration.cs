@@ -26,10 +26,10 @@ public class SaleItemConfiguration : IEntityTypeConfiguration<SaleItem>
             .HasColumnType("decimal(18,2)")
             .IsRequired();
 
-        builder.Property(i => i.Discount)
+        builder.Property(i => i.DiscountAmount)
             .HasColumnType("decimal(5,2)");
 
-        builder.Property(i => i.TotalItem)
+        builder.Property(i => i.TotalAmount)
             .HasColumnType("decimal(18,2)");
     }
 }

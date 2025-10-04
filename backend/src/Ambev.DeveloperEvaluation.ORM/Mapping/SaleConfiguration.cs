@@ -17,11 +17,11 @@ public class SaleConfiguration : IEntityTypeConfiguration<Sale>
                .IsRequired()
                .HasMaxLength(50);
 
-        builder.Property(s => s.Customer)
+        builder.Property(s => s.CustomerId)
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(s => s.Branch)
+        builder.Property(s => s.BranchId)
             .IsRequired()
             .HasMaxLength(50);
 

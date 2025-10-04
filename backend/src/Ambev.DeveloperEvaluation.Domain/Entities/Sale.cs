@@ -1,52 +1,65 @@
+using Ambev.DeveloperEvaluation.Common.Validation;
 using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Enums;
 using Ambev.DeveloperEvaluation.Domain.Validation;
+using System.Linq;
 
 namespace Ambev.DeveloperEvaluation.Domain.Entities
 {
     /// <summary>
-    /// Representa uma venda/transação por coleção de itens
+    /// Represents a sale transaction composed of multiple sale items.
     /// </summary>
     public class Sale : BaseEntity
     {
         public string SaleNumber { get; set; } = string.Empty;
-        public DateTime Date { get; set; }
-        public string Customer { get; set; } = string.Empty;
-        public string Branch { get; set; } = string.Empty;
+        public DateTime Date { get; set; } = DateTime.UtcNow;
+        public int CustomerId { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
+        public int BranchId { get; set; }
+        public string BranchName { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
-        public SaleStatus Status { get; set; } = SaleStatus.Active;
-        public List<SaleItem> Items { get; set; } = new();
+        public SaleStatus Status { get; private set; } = SaleStatus.Active;
+        public List<SaleItem> Items { get; private set; } = new();
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
-        /// <summary>
-        /// Adiciona um item à venda com validações básicas de domínio.
-        /// </summary>
-        public void AddItem(SaleItem item)
+        private Sale()
         {
-            if (item.Quantity > 20)
-                throw new DomainValidationException("Quantidade excedida, 20 unidades por item!");
-
-            Items.Add(item);
-            RecalculateTotals();
+            Items = new List<SaleItem>();
         }
 
         /// <summary>
-        /// Rwaliza o recalculo total da venda com os itens atuais.
+        /// Calculates the total amount based on items and discounts.
         /// </summary>
-        public void RecalculateTotals()
+        public void CalculateTotal()
         {
-            TotalAmount = Items.Sum(i => i.TotalItem);
+            TotalAmount = Items.Sum(i => i.TotalAmount);
             UpdatedAt = DateTime.UtcNow;
         }
 
         /// <summary>
-        /// Cancelamento da venda.
+        /// Cancels the sale.
         /// </summary>
         public void Cancel()
         {
             Status = SaleStatus.Cancelled;
             UpdatedAt = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Validates the Sale entity using the SaleValidator.
+        /// </summary>
+        public ValidationResultDetail Validate()
+        {
+            var validator = new SaleValidator();
+            var result = validator.Validate(this);
+
+            return new ValidationResultDetail
+            {
+                IsValid = result.IsValid,
+                Errors = result.Errors.Select(o => (ValidationErrorDetail)o)
+            };
         }
     }
 }
