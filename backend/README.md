@@ -1,10 +1,9 @@
-# Developer Evaluation Project - Template Inicial
+# Ambev Developer Evaluation - Backend API
 
-## Resumo
+## Visão Geral
+Este projeto é a API Backend do desafio **Ambev Developer Evaluation**, desenvolvida em **.NET 8** com arquitetura limpa e uso de **CQRS + MediatR**.
 Este repositório contém o **template inicial do projeto do desafio** devidamente configurado e funcionando localmente.  
 O objetivo deste commit é documentar as etapas realizadas até o momento para deixar o projeto funcional, antes de iniciar as atividades solicitadas no desafio.
-
----
 
 ## Contexto
 O template enviado originalmente apresentava pequenas inconsistências que impediam a execução local imediata.  
@@ -12,49 +11,109 @@ Para possibilitar o início do desenvolvimento, foram realizados ajustes na conf
 
 ---
 
-## Etapas realizadas
-
-### 1. Ambiente
-- Utilizado **.NET 8** e **Visual Studio 2022 / VS Code**.
-- Banco de dados: PostgreSQL (local e Neon online, para contornar limitações do Docker na máquina pessoal).
-- Pacotes principais: `Entity Framework Core`, `AutoMapper`, `MediatR`.
-
-### 2. Problemas encontrados
-- Template inicial com mapeamentos AutoMapper faltando em algumas rotas (Users e Auth).
-- Estrutura do banco de dados incompleta ou incompatível com PostgreSQL local.
-- Endpoints de autenticação e usuário não rodavam devido a mapeamentos faltantes.
-- Docker na máquina pessoal não suportava execução do container, sendo necessário alternativas de banco on-line.
-
-### 3. Correções realizadas
-- Criadas as tabelas necessárias no banco de dados (Users) com colunas corretas.
-- Corrigidos mapeamentos AutoMapper para:
-  - `CreateUserRequest -> CreateUserCommand`
-  - `GetUserResult -> GetUserResponse`
-  - `AuthenticateUserRequest -> AuthenticateUserCommand`
-  - `AuthenticateUserResult -> AuthenticateUserResponse`
-- Ajustes no DbContext e nas migrations para compatibilidade com PostgreSQL.
-- API inicial funcional localmente, endpoints testados para criação e consulta de usuários.
+## Tecnologias Principais
+- .NET 8
+- Entity Framework Core
+- MediatR (CQRS)
+- AutoMapper
+- FluentValidation
+- Serilog (Logs)
+- PostgreSQL
+- Docker
 
 ---
 
-## Status atual
-- Template inicial **funcionando localmente**.
-- API pronta para receber testes.
-- Próximo passo: iniciar o desenvolvimento das atividades solicitadas no desafio (CRUD de vendas, regras de negócio, etc).
+## Requisitos
+Antes de rodar o projeto, certifique-se de ter instalado:
+
+- [SDK do .NET 8](https://dotnet.microsoft.com/download)
+- [Docker](https://www.docker.com/)
+- [PostgreSQL](https://www.postgresql.org/download/)
 
 ---
 
-## Observações
-- Documentei os passos e ajustes realizados para que a equipe de avaliação possa entender rapidamente as alterações necessárias para executar o template.
-- Não foram implementadas funcionalidades do desafio ainda, apenas ajustes para rodar a base enviada.
+## Configuração do Ambiente
+
+### 1. Clonar o Repositório
+```bash
+git clone https://github.com/seu-usuario/ambev-developer-evaluation.git
+cd ambev-developer-evaluation
+```
+
+### 2. Configurar o Banco de Dados
+No arquivo `appsettings.json` ou `.env`, atualize a string de conexão com o banco PostgreSQL:
+
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Host=localhost;Port=5432;Database=ambev_sales;Username=postgres;Password=admin"
+}
+```
+
+### 3. Aplicar as Migrações
+```bash
+cd src/Ambev.DeveloperEvaluation.WebApi
+dotnet ef database update
+```
+
+### 4. Rodar o Projeto
+```bash
+dotnet run
+```
+
+A API será iniciada em:
+```
+https://localhost:5001
+http://localhost:5000
+```
 
 ---
 
-## Como rodar o projeto localmente
-1. Clonar o repositório
-`git clone <link-do-repositorio>`
+## Executar Testes
+```bash
+cd tests/Ambev.DeveloperEvaluation.UnitTests
+dotnet test
+```
 
-2. Configurar connection string para PostgreSQL (local ou Neon)
+---
 
-3. Executar migrations
-`dotnet ef database update`
+## Logs de Execução
+Os logs são gerados automaticamente via **Serilog** e ficam armazenados em:
+
+```
+src/Ambev.DeveloperEvaluation.WebApi/logs/log-<data>.txt
+```
+
+Exemplo:
+```
+src/Ambev.DeveloperEvaluation.WebApi/logs/log-20251005.txt
+```
+
+Cada arquivo contém o histórico diário de execução e operações registradas na aplicação (criação, atualização e deleção de registros).
+
+---
+
+## 📁 Estrutura do Projeto
+```
+src/
+ ├── Ambev.DeveloperEvaluation.Application
+ ├── Ambev.DeveloperEvaluation.Domain
+ ├── Ambev.DeveloperEvaluation.ORM
+ ├── Ambev.DeveloperEvaluation.WebApi
+tests/
+ ├── Ambev.DeveloperEvaluation.UnitTests
+```
+
+---
+
+## 🧱 Padrões Utilizados
+- **CQRS + Mediator Pattern**
+- **Dependency Injection (IoC)**
+- **Repository Pattern**
+- **Validation Pipeline**
+- **Logging Centralizado (Serilog)**
+
+---
+
+## 🧾 Autor
+Desenvolvido por **Deyvison José**  
+Contato: [LinkedIn](https://linkedin.com/in/deyvison) | [GitHub](https://github.com/deyvisonjose)
