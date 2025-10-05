@@ -21,7 +21,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
         /// <summary>
         /// Gets or sets the customer ID.
         /// </summary>
-        public int CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
 
         /// <summary>
         /// Gets or sets the customer name.
@@ -31,7 +31,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
         /// <summary>
         /// Gets or sets the branch ID.
         /// </summary>
-        public int BranchId { get; set; }
+        public Guid BranchId { get; set; }
 
         /// <summary>
         /// Gets or sets the branch name.

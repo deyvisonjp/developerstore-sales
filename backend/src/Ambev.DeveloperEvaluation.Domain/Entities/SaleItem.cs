@@ -12,8 +12,10 @@ public class SaleItem : BaseEntity
 {
     public Guid SaleId { get; set; }
     public Sale? Sale { get; set; }
+
     public Guid ProductId { get; set; }
-    public string ProductTitle { get; set; } = string.Empty;
+    public Product Product { get; set; } = default!;
+
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
     public decimal DiscountPercent { get; set; }

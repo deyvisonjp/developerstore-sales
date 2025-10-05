@@ -26,4 +26,5 @@ public class Product : BaseEntity
     /// Quantidade disponível em estoque.
     /// </summary>
     public int StockQuantity { get; set; }
+    public ICollection<SaleItem>? SaleItems { get; set; }
 }

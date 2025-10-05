@@ -11,7 +11,7 @@ public class SaleRepository : ISaleRepository
 
     public SaleRepository(DefaultContext context)
     {
-        _context = context;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
     public async Task<Sale> CreateAsync(Sale sale, CancellationToken cancellationToken)
     {
@@ -22,6 +22,7 @@ public class SaleRepository : ISaleRepository
     public async Task<List<Sale>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await _context.Sales
+            .AsNoTracking()
             .Include(s => s.Items)
             .ToListAsync(cancellationToken);
     }
@@ -29,6 +30,7 @@ public class SaleRepository : ISaleRepository
     public async Task<Sale?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _context.Sales
+            .AsNoTracking()
             .Include(s => s.Items)
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
     }
