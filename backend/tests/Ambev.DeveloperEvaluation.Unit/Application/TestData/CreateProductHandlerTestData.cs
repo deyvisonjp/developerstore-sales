@@ -11,10 +11,13 @@ namespace Ambev.DeveloperEvaluation.Unit.Domain
     {
         private static readonly Faker<CreateProductCommand> createProductFaker = new Faker<CreateProductCommand>()
             .CustomInstantiator(f => new CreateProductCommand(
+                Id: Guid.NewGuid(),
                 Name: f.Commerce.ProductName(),
                 Description: f.Commerce.ProductDescription(),
+                Category: f.Commerce.Categories(1)[0],
                 Price: f.Random.Decimal(1, 1000),
-                StockQuantity: f.Random.Int(0, 100)
+                RatingAverage: Math.Round(f.Random.Double(0, 5), 2),
+                RatingReviews: f.Random.Decimal(0, 500)
             ));
 
         /// <summary>

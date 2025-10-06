@@ -1,12 +1,11 @@
-﻿
-using Ambev.DeveloperEvaluation.Domain.Entities;
+﻿using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace Ambev.DeveloperEvaluation.ORM.Repositories;
+
 /// <summary>
-/// Repositório para manipulação de produtos.
+/// Repository implementation for Product entity operations.
 /// </summary>
 public class ProductRepository : IProductRepository
 {
@@ -14,54 +13,87 @@ public class ProductRepository : IProductRepository
 
     public ProductRepository(DefaultContext context)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _context = context;
+    }
+
+    public async Task<Product> CreateAsync(Product product, CancellationToken cancellationToken)
+    {
+        await _context.Products.AddAsync(product, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+        return product;
+    }
+
+    public async Task<Product> UpdateAsync(Product product, CancellationToken cancellationToken)
+    {
+        _context.Products.Update(product);
+        await _context.SaveChangesAsync(cancellationToken);
+        return product;
+    }
+
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var product = await _context.Products.FindAsync([id], cancellationToken);
+        if (product == null)
+            return false;
+
+        _context.Products.Remove(product);
+        await _context.SaveChangesAsync(cancellationToken);
+        return true;
     }
 
     public async Task<Product?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        if (id == Guid.Empty)
-            return null;
-
         return await _context.Products
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
-    public async Task AddAsync(Product product, CancellationToken cancellationToken)
+    public async Task<IEnumerable<Product>> GetAllAsync(int page = 1, int size = 10, string? order = null, CancellationToken cancellationToken = default)
     {
-        if (product == null)
-            throw new ArgumentNullException(nameof(product));
+        var query = _context.Products.AsNoTracking();
 
-        await _context.Products.AddAsync(product, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken)
-    {
-        return (IEnumerable<Product>)await _context.Products
-                             .AsNoTracking()
-                             .ToListAsync(cancellationToken);
-    }
-
-    public async Task UpdateAsync(Product product, CancellationToken cancellationToken)
-    {
-        if (product == null)
-            throw new ArgumentNullException(nameof(product));
-
-        _context.Products.Update(product);
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
-    {
-        if (id == Guid.Empty)
-            return;
-
-        var product = await _context.Products.FindAsync(new object[] { id }, cancellationToken);
-        if (product != null)
+        query = order?.ToLower() switch
         {
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync(cancellationToken);
-        }
+            "name" => query.OrderBy(p => p.Name),
+            "price" => query.OrderBy(p => p.Price),
+            _ => query.OrderBy(p => p.CreatedAt)
+        };
+
+        return await query
+            .Skip((page - 1) * size)
+            .Take(size)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> GetTotalCountAsync(CancellationToken cancellationToken)
+    {
+        return await _context.Products.CountAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<string>> GetCategoriesAsync(CancellationToken cancellationToken)
+    {
+        return await _context.Products
+            .Select(p => p.Category)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<Product>> GetByCategoryAsync(string category, int page = 1, int size = 10, string? order = null, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Products
+            .Where(p => p.Category == category)
+            .AsNoTracking();
+
+        query = order?.ToLower() switch
+        {
+            "name" => query.OrderBy(p => p.Name),
+            "price" => query.OrderBy(p => p.Price),
+            _ => query.OrderBy(p => p.CreatedAt)
+        };
+
+        return await query
+            .Skip((page - 1) * size)
+            .Take(size)
+            .ToListAsync(cancellationToken);
     }
 }

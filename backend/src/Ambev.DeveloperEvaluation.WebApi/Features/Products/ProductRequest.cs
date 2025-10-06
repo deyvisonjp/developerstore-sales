@@ -10,11 +10,20 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Products
     {
         [DefaultValue("Notebook")]
         public string Name { get; set; } = "Notebook";
+
         [DefaultValue("Notebook Dell")]
         public string? Description { get; set; } = "Notebook Dell";
+
+        [DefaultValue("Eletrônicos")]
+        public string? Category { get; set; } = "Eletrônicos";
+
         [DefaultValue(1800)]
-        public decimal Price { get; set; } = 1788;
-        [DefaultValue(29)]
-        public int StockQuantity { get; set; } = 20;
+        public decimal Price { get; set; } = 1800;
+
+        [DefaultValue(0)]
+        public double RatingAverage { get; set; } = 0;
+
+        [DefaultValue(0)]
+        public decimal RatingReviews { get; set; } = 0;
     }
 }

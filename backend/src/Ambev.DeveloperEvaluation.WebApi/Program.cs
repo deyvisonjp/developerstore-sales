@@ -16,7 +16,7 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        //ToDo - Add a configuração do Serilog a parte.
+        //TODO: Add a configuração do Serilog a parte.
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
             .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)

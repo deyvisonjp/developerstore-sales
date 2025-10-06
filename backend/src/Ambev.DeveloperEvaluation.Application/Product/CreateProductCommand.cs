@@ -6,8 +6,11 @@ namespace Ambev.DeveloperEvaluation.Application.Products.CreateProduct;
 /// Comando para criação de um novo produto.
 /// </summary>
 public record CreateProductCommand(
+    Guid Id,
     string Name,
     string? Description,
+    string? Category,
     decimal Price,
-    int StockQuantity
+    double RatingAverage,
+    decimal RatingReviews
 ) : IRequest<CreateProductResult>;
