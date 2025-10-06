@@ -41,7 +41,7 @@ cd ambev-developer-evaluation
 ```
 
 ### 2. Configurar o Banco de Dados
-No arquivo `appsettings.json` ou `.env`, atualize a string de conexão com o banco PostgreSQL:
+No arquivo `appsettings.json` ou `.env` dentro do projeto WebApi, atualize a string de conexão com o banco PostgreSQL:
 
 ```json
 "ConnectionStrings": {

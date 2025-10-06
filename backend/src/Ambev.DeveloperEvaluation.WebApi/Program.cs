@@ -6,6 +6,7 @@ using Ambev.DeveloperEvaluation.Common.Validation;
 using Ambev.DeveloperEvaluation.IoC;
 using Ambev.DeveloperEvaluation.ORM;
 using Ambev.DeveloperEvaluation.WebApi.Middleware;
+using DotNetEnv;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -37,6 +38,18 @@ public class Program
 
             var builder = WebApplication.CreateBuilder(args);
             builder.Host.UseSerilog();
+
+            // Conf DotEnv
+            Env.Load();
+            var defaultConnection = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
+            var mongoDb = Environment.GetEnvironmentVariable("MONGO_DB");
+            var redis = Environment.GetEnvironmentVariable("REDIS");
+            if (!string.IsNullOrEmpty(defaultConnection))
+                builder.Configuration["ConnectionStrings:DefaultConnection"] = defaultConnection;
+            if (!string.IsNullOrEmpty(mongoDb))
+                builder.Configuration["ConnectionStrings:MongoDb"] = mongoDb;
+            if (!string.IsNullOrEmpty(redis))
+                builder.Configuration["ConnectionStrings:Redis"] = redis;
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
