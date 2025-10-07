@@ -1,11 +1,11 @@
-﻿using Ambev.DeveloperEvaluation.Application.Products.CreateProduct;
-using Ambev.DeveloperEvaluation.Application.Products.DeleteProduct;
-using Ambev.DeveloperEvaluation.Application.Products.DTOs;
-using Ambev.DeveloperEvaluation.Application.Products.UpdateProduct;
+﻿using Ambev.DeveloperEvaluation.Application.Products.DTOs;
+using Ambev.DeveloperEvaluation.Application.Products.Handlers.CreateProduct;
+using Ambev.DeveloperEvaluation.Application.Products.Handlers.DeleteProduct;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using Ambev.DeveloperEvaluation.WebApi.Features.Products.Create;
 using Ambev.DeveloperEvaluation.WebApi.Features.Products.Update;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Features.Products
@@ -33,6 +33,7 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Products
         /// <param name="cancellationToken">Token de cancelamento.</param>
         /// <returns>Produto criado.</returns>
         /// <response code="200">Produto criado com sucesso.</response>
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest request, CancellationToken cancellationToken)
         {
@@ -149,6 +150,7 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Products
         /// <param name="request">Dados atualizados do produto.</param>
         /// <param name="cancellationToken">Token de cancelamento.</param>
         /// <returns>Produto atualizado.</returns>
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] UpdateProductRequest request, CancellationToken cancellationToken)
         {
@@ -180,6 +182,7 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Products
         /// <param name="id">ID do produto.</param>
         /// <param name="cancellationToken">Token de cancelamento.</param>
         /// <returns>Mensagem de sucesso.</returns>
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteProduct(Guid id, CancellationToken cancellationToken)
         {
