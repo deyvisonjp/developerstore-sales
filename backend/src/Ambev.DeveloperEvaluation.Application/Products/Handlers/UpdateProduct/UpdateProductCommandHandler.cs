@@ -5,7 +5,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Ambev.DeveloperEvaluation.Common.Services;
 
-namespace Ambev.DeveloperEvaluation.Application.Products.UpdateProduct;
+namespace Ambev.DeveloperEvaluation.Application.Products.Handlers.UpdateProduct;
 
 public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, UpdateProductResult>
 {

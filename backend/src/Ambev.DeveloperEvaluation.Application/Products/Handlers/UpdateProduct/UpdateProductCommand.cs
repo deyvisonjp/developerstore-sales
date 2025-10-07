@@ -1,4 +1,4 @@
-﻿using Ambev.DeveloperEvaluation.Application.Products.UpdateProduct;
+﻿using Ambev.DeveloperEvaluation.Application.Products.Handlers.UpdateProduct;
 using MediatR;
 
 public record UpdateProductCommand(

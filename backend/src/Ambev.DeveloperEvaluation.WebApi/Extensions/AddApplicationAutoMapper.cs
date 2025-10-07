@@ -17,6 +17,7 @@ public static class MediatRAutoMapperExtensions
     public static IServiceCollection AddApplicationAutoMapper(this IServiceCollection services)
     {
         services.AddAutoMapper(typeof(ApplicationLayer).Assembly);
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         return services;
     }
 }

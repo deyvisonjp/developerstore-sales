@@ -1,6 +1,6 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Entities;
 
-namespace Ambev.DeveloperEvaluation.Application.Products.GetAllProducts;
+namespace Ambev.DeveloperEvaluation.Application.Products.Handlers.GetAllProducts;
 
 /// <summary>
 /// Modelo de resposta paginada de produtos.

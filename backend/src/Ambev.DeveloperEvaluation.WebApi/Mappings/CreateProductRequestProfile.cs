@@ -1,5 +1,5 @@
-﻿using Ambev.DeveloperEvaluation.Application.Products.CreateProduct;
-using Ambev.DeveloperEvaluation.Domain.Entities;
+﻿using Ambev.DeveloperEvaluation.Application.Products.DTOs;
+using Ambev.DeveloperEvaluation.Application.Products.Handlers.CreateProduct;
 using Ambev.DeveloperEvaluation.WebApi.Features.Products.Create;
 using AutoMapper;
 
@@ -12,9 +12,15 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Products
     {
         public ProductRequestProfile()
         {
+            CreateMap<CreateProductRequest, ProductCreateDto>()
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => new RatingDto
+                {
+                    Rate = src.RatingAverage,
+                    Count = (int)src.RatingReviews
+                }));
 
-            CreateMap<CreateProductRequest, CreateProductCommand>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()));
+            CreateMap<ProductCreateDto, CreateProductCommand>()
+                .ConstructUsing(dto => new CreateProductCommand(dto));
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Entities;
 
-namespace Ambev.DeveloperEvaluation.Application.Products.UpdateProduct;
+namespace Ambev.DeveloperEvaluation.Application.Products.Handlers.UpdateProduct;
 
 /// <summary>
 /// Resultado da atualização de um produto.

@@ -1,4 +1,4 @@
-﻿using Ambev.DeveloperEvaluation.Application.Products.CreateProduct;
+﻿using Ambev.DeveloperEvaluation.Application.Products.Handlers.CreateProduct;
 using Bogus;
 
 namespace Ambev.DeveloperEvaluation.Unit.Domain

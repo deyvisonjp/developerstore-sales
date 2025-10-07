@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Ambev.DeveloperEvaluation.Application.Products.GetAllProducts;
+namespace Ambev.DeveloperEvaluation.Application.Products.Handlers.GetAllProducts;
 
 /// <summary>
 /// Query para obter a lista de produtos paginada.

@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Ambev.DeveloperEvaluation.Common.Services;
 
-namespace Ambev.DeveloperEvaluation.Application.Products.GetAllProducts;
+namespace Ambev.DeveloperEvaluation.Application.Products.Handlers.GetAllProducts;
 
 public class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, GetAllProductsResult>
 {

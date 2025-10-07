@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Ambev.DeveloperEvaluation.Common.Services;
 
-namespace Ambev.DeveloperEvaluation.Application.Products.DeleteProduct;
+namespace Ambev.DeveloperEvaluation.Application.Products.Handlers.DeleteProduct;
 
 public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand, bool>
 {

@@ -5,7 +5,7 @@ using Ambev.DeveloperEvaluation.Common.Services;
 using System;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 
-namespace Ambev.DeveloperEvaluation.Application.Products.GetProduct;
+namespace Ambev.DeveloperEvaluation.Application.Products.Handlers.GetProduct;
 
 public class GetProductQueryHandler : IRequestHandler<GetProductQuery, GetProductResult>
 {

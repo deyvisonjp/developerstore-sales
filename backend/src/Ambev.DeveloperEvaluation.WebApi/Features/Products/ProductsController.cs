@@ -1,5 +1,6 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Products.CreateProduct;
 using Ambev.DeveloperEvaluation.Application.Products.DeleteProduct;
+using Ambev.DeveloperEvaluation.Application.Products.DTOs;
 using Ambev.DeveloperEvaluation.Application.Products.UpdateProduct;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using Ambev.DeveloperEvaluation.WebApi.Features.Products.Create;
@@ -35,26 +36,31 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Products
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest request, CancellationToken cancellationToken)
         {
-            var command = new CreateProductCommand(
-                Id: Guid.NewGuid(),
-                Title: request.Title,
-                Description: request.Description,
-                Category: request.Category,
-                Price: request.Price,
-                Image: request.Image,
-                RatingAverage: request.RatingAverage,
-                RatingReviews: request.RatingReviews
-            );
+            var dto = new ProductCreateDto
+            {
+                Title = request.Title,
+                Description = request.Description,
+                Category = request.Category,
+                Price = request.Price,
+                Image = request.Image,
+                Rating = new RatingDto
+                {
+                    Rate = request.RatingAverage,
+                    Count = (int)request.RatingReviews,
+                }
+            };
 
+            var command = new CreateProductCommand(dto);
             var result = await _mediator.Send(command, cancellationToken);
 
             return Ok(new
             {
                 success = true,
                 message = "Product created successfully",
-                data = result.Product
+                data = result
             });
         }
+
 
 
         /// <summary>
