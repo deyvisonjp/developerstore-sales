@@ -1,14 +1,12 @@
-﻿namespace Ambev.DeveloperEvaluation.Application.Products.CreateProduct;
+﻿using Ambev.DeveloperEvaluation.Domain.Entities;
 
-/// <summary>
-/// Resultado da criação de produto.
-/// </summary>
-public record CreateProductResult(
-    Guid Id,
-    string Name,
-    string? Description,
-    string? Category,
-    decimal Price,
-    double RatingAverage,
-    decimal RatingReviews
-);
+namespace Ambev.DeveloperEvaluation.Application.Products.CreateProduct
+{
+    /// <summary>
+    /// Resultado da criação de um produto.
+    /// </summary>
+    public class CreateProductResult
+    {
+        public Product Product { get; set; } = default!;
+    }
+}

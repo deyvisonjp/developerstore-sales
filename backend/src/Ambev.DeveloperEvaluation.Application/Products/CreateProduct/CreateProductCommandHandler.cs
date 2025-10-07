@@ -1,43 +1,34 @@
-﻿using Ambev.DeveloperEvaluation.Domain.Entities;
+﻿using Ambev.DeveloperEvaluation.Application.Products.CreateProduct;
+using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
-using AutoMapper;
 using MediatR;
-using Microsoft.Extensions.Logging;
 
-namespace Ambev.DeveloperEvaluation.Application.Products.CreateProduct
+public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, CreateProductResult>
 {
-    /// <summary>
-    /// Handler para criação de produtos.
-    /// </summary>
-    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, CreateProductResult>
+    private readonly IProductRepository _repository;
+
+    public CreateProductCommandHandler(IProductRepository repository)
     {
-        private readonly IProductRepository _repository;
-        private readonly IMapper _mapper;
-        private readonly ILogger<CreateProductCommandHandler> _logger;
+        _repository = repository;
+    }
 
-        public CreateProductCommandHandler(
-            IProductRepository repository,
-            IMapper mapper,
-            ILogger<CreateProductCommandHandler> logger)
+    public async Task<CreateProductResult> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+    {
+        var product = new Product
         {
-            _repository = repository;
-            _mapper = mapper;
-            _logger = logger;
-        }
+            Id = request.Id,
+            Name = request.Title,
+            Description = request.Description,
+            Category = request.Category,
+            Price = request.Price,
+            ImageUrl = request.Image,
+            RatingAverage = request.RatingAverage,
+            RatingReviews = (int)request.RatingReviews,
+            CreatedAt = DateTime.UtcNow
+        };
 
-        public async Task<CreateProductResult> Handle(CreateProductCommand request, CancellationToken cancellationToken)
-        {
-            _logger.LogInformation("Iniciando criação de produto: {Name}", request.Name);
+        await _repository.CreateAsync(product, cancellationToken);
 
-            var product = _mapper.Map<Product>(request);
-
-            var createdProduct = await _repository.CreateAsync(product, cancellationToken);
-
-            _logger.LogInformation("Produto criado com sucesso: {ProductId}", createdProduct.Id);
-
-            var result = _mapper.Map<CreateProductResult>(createdProduct);
-
-            return result;
-        }
+        return new CreateProductResult { Product = product };
     }
 }

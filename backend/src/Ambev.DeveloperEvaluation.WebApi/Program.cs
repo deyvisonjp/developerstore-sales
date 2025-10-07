@@ -2,6 +2,7 @@
 using Ambev.DeveloperEvaluation.Common.HealthChecks;
 using Ambev.DeveloperEvaluation.Common.Logging;
 using Ambev.DeveloperEvaluation.Common.Security;
+using Ambev.DeveloperEvaluation.Common.Services;
 using Ambev.DeveloperEvaluation.Common.Validation;
 using Ambev.DeveloperEvaluation.IoC;
 using Ambev.DeveloperEvaluation.ORM;
@@ -10,6 +11,7 @@ using DotNetEnv;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using StackExchange.Redis;
 
 namespace Ambev.DeveloperEvaluation.WebApi;
 
@@ -17,7 +19,6 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        //TODO: Add a configuração do Serilog a parte.
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
             .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
@@ -44,6 +45,7 @@ public class Program
             var defaultConnection = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
             var mongoDb = Environment.GetEnvironmentVariable("MONGO_DB");
             var redis = Environment.GetEnvironmentVariable("REDIS");
+
             if (!string.IsNullOrEmpty(defaultConnection))
                 builder.Configuration["ConnectionStrings:DefaultConnection"] = defaultConnection;
             if (!string.IsNullOrEmpty(mongoDb))
@@ -53,14 +55,16 @@ public class Program
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-
             builder.AddBasicHealthChecks();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddStackExchangeRedisCache(options =>
+            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
-                options.Configuration = builder.Configuration.GetConnectionString("Redis");
+                var configuration = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+                return ConnectionMultiplexer.Connect(configuration);
             });
+
+            builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
 
             builder.Services.AddDbContext<DefaultContext>(options =>
                 options.UseNpgsql(

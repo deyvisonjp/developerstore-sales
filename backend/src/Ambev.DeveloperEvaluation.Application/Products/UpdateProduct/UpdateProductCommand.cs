@@ -1,6 +1,5 @@
-﻿using MediatR;
-
-namespace Ambev.DeveloperEvaluation.Application.Products.UpdateProduct;
+﻿using Ambev.DeveloperEvaluation.Application.Products.UpdateProduct;
+using MediatR;
 
 public record UpdateProductCommand(
     Guid Id,
@@ -8,7 +7,8 @@ public record UpdateProductCommand(
     decimal Price,
     string Description,
     string Category,
-    string Image,
-    decimal Rate,
+    string? Image,
+    double Rate,
+    decimal Reviews,
     int Count
 ) : IRequest<UpdateProductResult>;

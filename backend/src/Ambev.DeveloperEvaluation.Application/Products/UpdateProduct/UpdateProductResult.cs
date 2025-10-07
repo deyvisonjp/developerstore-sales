@@ -1,11 +1,11 @@
-﻿namespace Ambev.DeveloperEvaluation.Application.Products.UpdateProduct;
+﻿using Ambev.DeveloperEvaluation.Domain.Entities;
 
+namespace Ambev.DeveloperEvaluation.Application.Products.UpdateProduct;
+
+/// <summary>
+/// Resultado da atualização de um produto.
+/// </summary>
 public class UpdateProductResult
 {
-    public Guid Id { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public decimal Price { get; set; }
-    public string Description { get; set; } = string.Empty;
-    public string Category { get; set; } = string.Empty;
-    public string Image { get; set; } = string.Empty;
+    public Product Product { get; set; } = default!;
 }

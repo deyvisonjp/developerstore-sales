@@ -1,4 +1,6 @@
-﻿namespace Ambev.DeveloperEvaluation.Application.Products.GetAllProducts;
+﻿using Ambev.DeveloperEvaluation.Domain.Entities;
+
+namespace Ambev.DeveloperEvaluation.Application.Products.GetAllProducts;
 
 /// <summary>
 /// Modelo de resposta paginada de produtos.
@@ -8,7 +10,7 @@ public class GetAllProductsResult
     /// <summary>
     /// Lista de produtos retornados.
     /// </summary>
-    public IEnumerable<ProductItem> Data { get; set; } = new List<ProductItem>();
+    public IEnumerable<Product> Data { get; set; } = new List<Product>();
 
     /// <summary>
     /// Total de produtos disponíveis.
@@ -24,30 +26,4 @@ public class GetAllProductsResult
     /// Total de páginas.
     /// </summary>
     public int TotalPages { get; set; }
-}
-
-/// <summary>
-/// Item de produto retornado na listagem.
-/// </summary>
-public class ProductItem
-{
-    /// <summary>
-    /// Identificador único do produto.
-    /// </summary>
-    public Guid Id { get; set; }
-
-    /// <summary>
-    /// Nome do produto.
-    /// </summary>
-    public string Name { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Categoria do produto.
-    /// </summary>
-    public string Category { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Preço do produto.
-    /// </summary>
-    public decimal Price { get; set; }
 }

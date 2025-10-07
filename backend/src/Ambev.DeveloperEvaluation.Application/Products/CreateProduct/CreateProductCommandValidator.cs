@@ -9,7 +9,7 @@ public class CreateProductCommandValidator : AbstractValidator<CreateProductComm
 {
     public CreateProductCommandValidator()
     {
-        RuleFor(x => x.Name)
+        RuleFor(x => x.Title)
             .NotEmpty().WithMessage("O nome do produto é obrigatório.")
             .MaximumLength(100).WithMessage("O nome do produto não pode exceder 100 caracteres.");
 
