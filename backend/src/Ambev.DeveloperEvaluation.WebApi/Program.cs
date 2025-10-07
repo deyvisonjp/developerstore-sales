@@ -1,17 +1,10 @@
-﻿using Ambev.DeveloperEvaluation.Application;
-using Ambev.DeveloperEvaluation.Common.HealthChecks;
-using Ambev.DeveloperEvaluation.Common.Logging;
-using Ambev.DeveloperEvaluation.Common.Security;
-using Ambev.DeveloperEvaluation.Common.Services;
-using Ambev.DeveloperEvaluation.Common.Validation;
+﻿using Ambev.DeveloperEvaluation.Common.HealthChecks;
 using Ambev.DeveloperEvaluation.IoC;
-using Ambev.DeveloperEvaluation.ORM;
+using Ambev.DeveloperEvaluation.WebApi.Extensions;
 using Ambev.DeveloperEvaluation.WebApi.Middleware;
+using Ambev.DeveloperEvaluation.Common.Security;
 using DotNetEnv;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
-using StackExchange.Redis;
 
 namespace Ambev.DeveloperEvaluation.WebApi;
 
@@ -19,78 +12,41 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Information()
-            .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
-            .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
-            .Enrich.FromLogContext()
-            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss}] {Message:lj}{NewLine}")
-            .WriteTo.File(
-                path: "logs/actions-.txt",
-                rollingInterval: RollingInterval.Day,
-                restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information,
-                outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss}] {Message:lj}{NewLine}"
-            )
-            .CreateLogger();
+        // Serilog
+        Log.Logger = SerilogExtensions.ConfigureBootstrapLogger();
 
         try
         {
             Log.Information("Starting web application");
 
             var builder = WebApplication.CreateBuilder(args);
-            builder.Host.UseSerilog();
+            builder.Host.UseSerilog((context, services, configuration) =>
+                configuration.ReadFrom.Configuration(context.Configuration)
+                             .ReadFrom.Services(services)
+                             .Enrich.FromLogContext());
 
-            // Conf DotEnv
+            // Load .env
             Env.Load();
-            var defaultConnection = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
-            var mongoDb = Environment.GetEnvironmentVariable("MONGO_DB");
-            var redis = Environment.GetEnvironmentVariable("REDIS");
+            builder.Configuration.ApplyEnvVariables();
 
-            if (!string.IsNullOrEmpty(defaultConnection))
-                builder.Configuration["ConnectionStrings:DefaultConnection"] = defaultConnection;
-            if (!string.IsNullOrEmpty(mongoDb))
-                builder.Configuration["ConnectionStrings:MongoDb"] = mongoDb;
-            if (!string.IsNullOrEmpty(redis))
-                builder.Configuration["ConnectionStrings:Redis"] = redis;
-
-            builder.Services.AddControllers();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.AddBasicHealthChecks();
-            builder.Services.AddSwaggerGen();
-
-            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-            {
-                var configuration = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
-                return ConnectionMultiplexer.Connect(configuration);
-            });
-
-            builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
-
-            builder.Services.AddDbContext<DefaultContext>(options =>
-                options.UseNpgsql(
-                    builder.Configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
-                ));
-
-            builder.Services.AddJwtAuthentication(builder.Configuration);
+            // IoC
             builder.RegisterDependencies();
 
-            builder.Services.AddAutoMapper(
-                typeof(Program).Assembly,
-                typeof(ApplicationLayer).Assembly
-            );
+            // Conf WebAPI
+            builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerDocs();
+            builder.Services.AddJwtAuthentication(builder.Configuration);
+            builder.AddBasicHealthChecks();
 
-            builder.Services.AddMediatR(cfg =>
-            {
-                cfg.RegisterServicesFromAssemblies(
-                    typeof(ApplicationLayer).Assembly,
-                    typeof(Program).Assembly
-                );
-            });
-
-            builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            // Infra
+            builder.Services.AddDbContextConfiguration(builder.Configuration);
+            builder.Services.AddRedisConfiguration(builder.Configuration);
+            builder.Services.AddApplicationAutoMapper();
+            builder.Services.AddMediatRConfiguration();
 
             var app = builder.Build();
+
             app.UseMiddleware<ValidationExceptionMiddleware>();
 
             if (app.Environment.IsDevelopment())
