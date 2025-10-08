@@ -1,21 +1,47 @@
 ﻿using Microsoft.OpenApi.Models;
 
-namespace Ambev.DeveloperEvaluation.WebApi.Extensions;
-
-public static class SwaggerExtensions
+namespace Ambev.DeveloperEvaluation.WebApi.Extensions
 {
-    public static IServiceCollection AddSwaggerDocs(this IServiceCollection services)
+    public static class SwaggerExtensions
     {
-        services.AddSwaggerGen(options =>
+        public static IServiceCollection AddSwaggerDocs(this IServiceCollection services)
         {
-            options.SwaggerDoc("v1", new OpenApiInfo
+            services.AddSwaggerGen(options =>
             {
-                Title = "Developer Evaluation API",
-                Version = "v1",
-                Description = "API backend desenvolvida em .NET 8 para desafio técnico."
-            });
-        });
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Developer Evaluation API",
+                    Version = "v1",
+                    Description = "API backend desenvolvida em .NET 8 para desafio técnico."
+                });
 
-        return services;
+                var securityScheme = new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Description = "Insira o token JWT desta forma: **Bearer {seu_token}**",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                };
+
+                options.AddSecurityDefinition("Bearer", securityScheme);
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        securityScheme,
+                        Array.Empty<string>()
+                    }
+                });
+            });
+
+            return services;
+        }
     }
 }

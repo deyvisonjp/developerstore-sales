@@ -24,7 +24,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
 
-        private Sale()
+        public Sale()
         {
             Items = new List<SaleItem>();
         }

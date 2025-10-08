@@ -1,105 +1,76 @@
-﻿using MediatR;
+﻿using Ambev.DeveloperEvaluation.Application.Sales.DTOs;
+using Ambev.DeveloperEvaluation.Application.Sales.Handlers;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
-using Ambev.DeveloperEvaluation.WebApi.Common;
-using Ambev.DeveloperEvaluation.WebApi.Features.Sales.CreateSale;
-using Ambev.DeveloperEvaluation.WebApi.Features.Sales.GetSale;
-using Ambev.DeveloperEvaluation.WebApi.Features.Sales.DeleteSale;
-using Ambev.DeveloperEvaluation.Application.Sales.CreateSale;
-using Ambev.DeveloperEvaluation.Application.Sales.GetSale;
-using Ambev.DeveloperEvaluation.Application.Sales.DeleteSale;
 
-namespace Ambev.DeveloperEvaluation.WebApi.Features.Sales;
-
-/// <summary>
-/// Controller for managing sales operations.
-/// </summary>
-[ApiController]
-[Route("api/[controller]")]
-public class SalesController : BaseController
+namespace Ambev.DeveloperEvaluation.WebApi.Features.Sales
 {
-    private readonly IMediator _mediator;
-    private readonly IMapper _mapper;
-
-    public SalesController(IMediator mediator, IMapper mapper)
-    {
-        _mediator = mediator;
-        _mapper = mapper;
-    }
-
     /// <summary>
-    /// Creates a new sale with items.
+    /// Controller responsável pelas operações relacionadas a vendas.
     /// </summary>
-    [HttpPost]
-    [ProducesResponseType(typeof(ApiResponseWithData<CreateSaleResponse>), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateSale([FromBody] CreateSaleRequest request, CancellationToken cancellationToken)
+    [ApiController]
+    [Route("api/[controller]")]
+    //[Authorize] // se desejar autenticação, remova o comentário
+    public class SalesController : ControllerBase
     {
-        var validator = new CreateSaleRequestValidator();
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        private readonly IMediator _mediator;
 
-        if (!validationResult.IsValid)
-            return BadRequest(validationResult.Errors);
-
-        var command = _mapper.Map<CreateSaleCommand>(request);
-        var result = await _mediator.Send(command, cancellationToken);
-
-        return Created(string.Empty, new ApiResponseWithData<CreateSaleResponse>
+        public SalesController(IMediator mediator)
         {
-            Success = true,
-            Message = "Sale created successfully",
-            Data = _mapper.Map<CreateSaleResponse>(result)
-        });
-    }
+            _mediator = mediator;
+        }
 
-    /// <summary>
-    /// Retrieves a sale by its ID.
-    /// </summary>
-    [HttpGet("{id}")]
-    [ProducesResponseType(typeof(ApiResponseWithData<GetSaleResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetSale([FromRoute] Guid id, CancellationToken cancellationToken)
-    {
-        var request = new GetSaleRequest { Id = id };
-        var validator = new GetSaleRequestValidator();
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if (!validationResult.IsValid)
-            return BadRequest(validationResult.Errors);
-
-        var command = new GetSaleCommand(id);
-        var result = await _mediator.Send(command, cancellationToken);
-
-        return Ok(new ApiResponseWithData<GetSaleResponse>
+        /// <summary>
+        /// Cria uma nova venda.
+        /// </summary>
+        /// <param name="dto">Objeto contendo os dados da venda.</param>
+        /// <param name="cancellationToken">Token para cancelamento da requisição.</param>
+        /// <returns>Retorna o objeto da venda criada com status 201 Created.</returns>
+        [HttpPost]
+        public async Task<ActionResult<SaleResponseDto>> Create([FromBody] SaleCreateDto dto, CancellationToken cancellationToken)
         {
-            Success = true,
-            Message = "Sale retrieved successfully",
-            Data = _mapper.Map<GetSaleResponse>(result)
-        });
-    }
+            var command = new CreateSaleCommand(dto);
+            var result = await _mediator.Send(command, cancellationToken);
+            return CreatedAtAction(nameof(Create), new { saleNumber = result.SaleNumber }, result);
+        }
 
-    /// <summary>
-    /// Deletes a sale by its ID.
-    /// </summary>
-    [HttpDelete("{id}")]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteSale([FromRoute] Guid id, CancellationToken cancellationToken)
-    {
-        var request = new DeleteSaleRequest { Id = id };
-        var validator = new DeleteSaleRequestValidator();
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if (!validationResult.IsValid)
-            return BadRequest(validationResult.Errors);
-
-        var command = new DeleteSaleCommand(id);
-        await _mediator.Send(command, cancellationToken);
-
-        return Ok(new ApiResponse
+        /// <summary>
+        /// Obtém uma venda pelo seu identificador.
+        /// </summary>
+        /// <param name="id">Identificador da venda (GUID).</param>
+        /// <param name="cancellationToken">Token para cancelamento da requisição.</param>
+        /// <returns>Retorna a venda encontrada ou 404 caso não exista.</returns>
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
         {
-            Success = true,
-            Message = "Sale deleted successfully"
-        });
+            var result = await _mediator.Send(new GetSaleQuery(id), cancellationToken);
+            return result is null ? NotFound() : Ok(result);
+        }
+
+        /// <summary>
+        /// Retorna todas as vendas cadastradas.
+        /// </summary>
+        /// <param name="cancellationToken">Token para cancelamento da requisição.</param>
+        /// <returns>Lista de vendas com status 200 OK.</returns>
+        [HttpGet]
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(new GetAllSalesQuery(), cancellationToken);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Deleta uma venda pelo seu identificador.
+        /// </summary>
+        /// <param name="id">Identificador da venda (GUID).</param>
+        /// <param name="cancellationToken">Token para cancelamento da requisição.</param>
+        /// <returns>Status 204 NoContent se deletado, 404 NotFound caso não exista.</returns>
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+        {
+            var success = await _mediator.Send(new DeleteSaleCommand(id), cancellationToken);
+            return success ? NoContent() : NotFound();
+        }
     }
 }
