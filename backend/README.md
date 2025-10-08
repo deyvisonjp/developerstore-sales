@@ -115,5 +115,5 @@ tests/
 ---
 
 ## 🧾 Autor
-Desenvolvido por **Deyvison José**  
-Contato: [LinkedIn](https://linkedin.com/in/deyvison) | [GitHub](https://github.com/deyvisonjose)
+Desenvolvido por **Deyvison J Paula**  
+Contato: [LinkedIn](https://www.linkedin.com/in/deyvisonjpaula/) | [GitHub](https://github.com/deyvisonjp)
