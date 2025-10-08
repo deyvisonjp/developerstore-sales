@@ -7,7 +7,6 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System.Text.Json;
-using Ambev.DeveloperEvaluation.Application.Sales.Handlers.Create;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.Handlers.Create
 {
@@ -18,6 +17,10 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Handlers.Create
         private readonly IMapper _mapper;
         private readonly IConnectionMultiplexer _redis;
         private readonly ILogger<CreateSaleCommandHandler> _logger;
+        private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
         public CreateSaleCommandHandler(
             ISaleRepository saleRepository,
@@ -35,19 +38,34 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Handlers.Create
 
         public async Task<SaleResponseDto> Handle(CreateSaleCommand request, CancellationToken cancellationToken)
         {
-            var dto = request.Dto;
+            var dto = request.Dto ?? throw new ArgumentNullException(nameof(request.Dto));
+
+            if (string.IsNullOrWhiteSpace(dto.SaleNumber))
+                throw new ArgumentException("SaleNumber é obrigatório.");
 
             if (dto.Items == null || !dto.Items.Any())
                 throw new ArgumentException("A venda deve conter ao menos um item.");
 
+            if (dto.Items.Any(i => i.Quantity <= 0))
+                throw new ArgumentException("A quantidade de cada item deve ser maior que zero.");
+
             var cacheKey = $"sale:{dto.SaleNumber}";
             var db = _redis.GetDatabase();
 
-            if (await db.KeyExistsAsync(cacheKey))
+            try
             {
-                _logger.LogInformation("Venda {SaleNumber} encontrada em cache", dto.SaleNumber);
-                var cached = await db.StringGetAsync(cacheKey);
-                return JsonSerializer.Deserialize<SaleResponseDto>(cached!)!;
+                var cachedValue = await db.StringGetAsync(cacheKey);
+                if (!cachedValue.IsNullOrEmpty)
+                {
+                    _logger.LogInformation("Venda {SaleNumber} retornada do cache", dto.SaleNumber);
+                    var cachedResponse = JsonSerializer.Deserialize<SaleResponseDto>(cachedValue, _jsonOptions);
+                    if (cachedResponse != null)
+                        return cachedResponse;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Falha ao acessar cache Redis (não fatal). Continuando processamento...");
             }
 
             _logger.LogInformation("Criando venda {SaleNumber} para cliente {Customer}", dto.SaleNumber, dto.CustomerName);
@@ -57,10 +75,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Handlers.Create
             {
                 var product = await _productRepository.GetByIdAsync(item.ProductId, cancellationToken);
                 if (product == null)
-                {
-                    _logger.LogWarning("Produto {ProductId} não encontrado", item.ProductId);
-                    throw new ArgumentException($"Produto {item.ProductId} não existe.");
-                }
+                    throw new ArgumentException($"Produto {item.ProductId} não encontrado.");
                 products.Add(product);
             }
 
@@ -70,12 +85,15 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Handlers.Create
                 CustomerId = dto.CustomerId,
                 CustomerName = dto.CustomerName,
                 BranchId = dto.BranchId,
-                BranchName = dto.BranchName,
+                BranchName = dto.BranchName
             };
 
             foreach (var itemDto in dto.Items)
             {
                 var product = products.First(p => p.Id == itemDto.ProductId);
+
+                if (itemDto.Quantity > 20)
+                    throw new ArgumentException($"Não é permitido vender mais de 20 unidades do produto {product.Name}.");
 
                 var saleItem = new SaleItem
                 {
@@ -119,7 +137,14 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Handlers.Create
                 }).ToList()
             };
 
-            await db.StringSetAsync(cacheKey, JsonSerializer.Serialize(response), TimeSpan.FromHours(1));
+            try
+            {
+                await db.StringSetAsync(cacheKey, JsonSerializer.Serialize(response, _jsonOptions), TimeSpan.FromHours(1));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Falha ao gravar cache para venda {SaleNumber}", dto.SaleNumber);
+            }
 
             _logger.LogInformation("Venda {SaleNumber} criada com sucesso e armazenada em cache", dto.SaleNumber);
 
