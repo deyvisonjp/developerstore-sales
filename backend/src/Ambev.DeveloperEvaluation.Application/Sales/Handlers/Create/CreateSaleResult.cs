@@ -1,4 +1,4 @@
-﻿namespace Ambev.DeveloperEvaluation.Application.Sales.Handlers;
+﻿namespace Ambev.DeveloperEvaluation.Application.Sales.Handlers.Create;
 public class CreateSaleResult
 {
     public Guid Id { get; set; }

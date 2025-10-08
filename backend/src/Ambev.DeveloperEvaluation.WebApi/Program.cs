@@ -45,23 +45,31 @@ public class Program
             builder.Services.AddApplicationAutoMapper();
             builder.Services.AddMediatRConfiguration();
 
-            var app = builder.Build();
-
-            app.UseMiddleware<ValidationExceptionMiddleware>();
-
-            if (app.Environment.IsDevelopment())
+            try
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                var app = builder.Build();
+                app.UseMiddleware<ValidationExceptionMiddleware>();
+
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseSwagger();
+                    app.UseSwaggerUI();
+                }
+
+                app.UseHttpsRedirection();
+                app.UseAuthentication();
+                app.UseAuthorization();
+                app.UseBasicHealthChecks();
+                app.MapControllers();
+
+                app.Run();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Falha ao construir o app");
+                throw;
             }
 
-            app.UseHttpsRedirection();
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.UseBasicHealthChecks();
-            app.MapControllers();
-
-            app.Run();
         }
         catch (Exception ex)
         {

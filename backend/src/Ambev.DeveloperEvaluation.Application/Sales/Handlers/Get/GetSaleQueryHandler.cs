@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ambev.DeveloperEvaluation.Application.Sales.Handlers
+namespace Ambev.DeveloperEvaluation.Application.Sales.Handlers.Get
 {
     public class GetSaleQueryHandler : IRequestHandler<GetSaleQuery, SaleReadDto?>
     {

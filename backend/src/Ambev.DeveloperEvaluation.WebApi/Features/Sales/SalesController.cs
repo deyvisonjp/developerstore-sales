@@ -1,5 +1,8 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Sales.DTOs;
 using Ambev.DeveloperEvaluation.Application.Sales.Handlers;
+using Ambev.DeveloperEvaluation.Application.Sales.Handlers.Create;
+using Ambev.DeveloperEvaluation.Application.Sales.Handlers.Delete;
+using Ambev.DeveloperEvaluation.Application.Sales.Handlers.Get;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +14,7 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Sales
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    //[Authorize] // se desejar autenticação, remova o comentário
+    [Authorize]
     public class SalesController : ControllerBase
     {
         private readonly IMediator _mediator;
